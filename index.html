@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>National Talent Test Portal | Pharma2Tech Systems</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- EXTERNAL CSS FILE -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body oncontextmenu="return false;" oncopy="return false;" oncut="return false;" onpaste="return false;">
+
+<div id="loading"><div class="loader"></div><p style="margin-top:12px; font-weight:500; color:var(--dark);">Processing...</p></div>
+
+<header>
+    <div class="logo-container">
+        <div class="logo-main">Pharma<span>2</span>Tech Systems</div>
+        <div class="logo-sub">Presents - Career Catalyst Program 2026</div>
+    </div>
+    <div id="userInfo">Welcome, <span id="headerName"></span></div>
+</header>
+
+<div class="container">
+    <!-- LOGIN & REGISTRATION CARD -->
+    <div class="card" id="loginCard">
+        <h2 class="portal-title">National Talent Test Portal</h2>
+        <div class="exam-subtitle" id="displayTitle">Loading Test Info...</div>
+        
+        <!-- COUNTDOWN TIMER BOX -->
+        <div class="timer-box" id="timerContainer">
+            <span class="timer-title">⏱️ Test Starts In</span>
+            <div class="countdown-digits" id="countdownDisplay">Calculating time...</div>
+            <span class="start-time-text" id="scheduledTimeText">Scheduled Start Time: Loading...</span>
+        </div>
+        
+        <div class="tab-btn-container">
+            <button class="tab-btn active" id="loginTabBtn" onclick="switchAuthMode('LOGIN')">Existing Candidate Login</button>
+            <button class="tab-btn" id="regTabBtn" onclick="switchAuthMode('REG')">Register New Candidate</button>
+        </div>
+
+        <div class="instruction-box">
+            <h4>📝 Important Instructions:</h4>
+            <ul>
+                <li>• Do not switch tabs or exit Full-Screen during exam (Max 3 warnings).</li>
+                <li>• Violation of rules will result in auto-submission and <b>locking of certificate</b>.</li>
+                <li>• Copying or selecting question text is strictly prohibited.</li>
+                <li>• For newly registered users, <b>Phone Number</b> will be your Password.</li>
+            </ul>
+        </div>
+        <p class="wish-msg">✨ All The Best for your Exam! ✨</p>
+
+        <!-- LOGIN FORM -->
+        <div id="loginForm">
+            <input type="email" id="email" placeholder="Registered Email ID">
+            <input type="password" id="pass" placeholder="Password (Phone No for New Users)">
+            <button class="btn btn-start btn-disabled" id="startExamBtn" disabled onclick="handleLogin('START')">Exam Not Started Yet</button>
+            <button class="btn btn-view" onclick="handleLogin('VIEW')">View Previous Results & Scorecard</button>
+        </div>
+
+        <!-- REGISTRATION FORM -->
+        <div id="registerForm" style="display: none; text-align: left;">
+            <input type="text" id="regName" placeholder="Full Name">
+            <input type="email" id="regEmail" placeholder="Email ID">
+            <input type="tel" id="regPhone" placeholder="Phone Number">
+            <input type="text" id="regCollege" placeholder="College Name">
+            <input type="text" id="regCity" placeholder="City / Village">
+            <input type="text" id="regState" placeholder="State">
+            <button class="btn btn-reg" onclick="handleRegistration()">Submit & Register</button>
+        </div>
+    </div>
+
+    <!-- EXAM CARD -->
+    <div class="card" id="examCard" style="display:none;">
+        <p id="malpracticeWarning" style="color:red; font-weight:bold; display:none; margin-bottom:10px;">⚠️ Warning: Malpractice / Tab switch / Fullscreen exit detected!</p>
+        
+        <div class="exam-layout">
+            <!-- QUESTION PALETTE SIDEBAR -->
+            <div class="exam-sidebar">
+                <div class="palette-toggle-btn" onclick="togglePalette()">
+                    <span>📊 Question Palette</span>
+                    <span id="paletteToggleIcon">▼ Show</span>
+                </div>
+
+                <div class="palette-content" id="paletteContent">
+                    <div class="palette-title" style="display:none;" id="desktopPaletteTitle">Question Palette</div>
+                    <div class="palette-grid" id="paletteGrid"></div>
+                    
+                    <div class="palette-legend">
+                        <div class="legend-item"><span class="legend-dot" style="background:var(--success)"></span> Attempted</div>
+                        <div class="legend-item"><span class="legend-dot" style="background:var(--danger)"></span> Unattempted</div>
+                        <div class="legend-item"><span class="legend-dot" style="background:var(--review)"></span> Review</div>
+                        <div class="legend-item"><span class="legend-dot" style="background:#e2e8f0"></span> Not Visited</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- EXAM MAIN QUESTION AREA -->
+            <div class="exam-main">
+                <div id="qContainer" style="text-align: left;"></div>
+                
+                <!-- NAVIGATION BUTTONS -->
+                <div class="nav-btn-container">
+                    <button id="prevBtn" class="btn btn-prev" onclick="prevQuestion()" style="display:none;">&larr; Prev</button>
+                    <button id="reviewBtn" class="btn btn-review" onclick="toggleMarkForReview()">🟣 Review</button>
+                    <button id="mainBtn" class="btn btn-next" onclick="nextQuestion()">Next &rarr;</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- RESULT & SCORECARD CARD -->
+    <div class="card" id="resultCard" style="display:none;"></div>
+
+    <!-- HISTORY CARD -->
+    <div class="card" id="historyCard" style="display:none;">
+        <h2 style="margin-bottom: 5px; color: var(--primary);">Exam History & Scorecard</h2>
+        <p style="font-size:0.85rem; color:#64748b; margin-bottom:18px;">View your past assessment scores or download your verified scorecard.</p>
+        <div id="historyList"></div>
+        <button class="btn btn-view" style="margin-top:15px; background:#64748b;" onclick="location.reload()">Back to Login</button>
+    </div>
+
+    <!-- REVIEW CARD -->
+    <div class="card" id="reviewCard" style="display:none;">
+        <h2 id="revExamTitle" style="text-align: left; font-size:1.2rem; margin-bottom:15px;">Review Analysis</h2>
+        <div class="grid-container" id="analysisGrid"></div>
+        <div style="display: flex; gap: 20px; justify-content: center; margin-bottom: 15px; font-size: 0.82rem;">
+            <span><span style="color:var(--success)">●</span> Right</span>
+            <span><span style="color:var(--danger)">●</span> Wrong</span>
+        </div>
+        <hr><br>
+        <div id="reviewDetails"></div>
+        <button class="btn btn-view" onclick="showHistoryList()">Back to History</button>
+    </div>
+</div>
+
+<footer>
+    <p>&copy; 2026 <b>Pharma2Tech Systems Pvt Ltd</b>. All Rights Reserved.</p>
+</footer>
+
+<!-- EXTERNAL JAVASCRIPT FILE -->
+<script src="script.js"></script>
+</body>
+</html>
